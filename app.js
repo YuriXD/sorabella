@@ -233,3 +233,16 @@ if (formAssistance) {
 if (formAppointment) {
     formAppointment.addEventListener('submit', (e) => handleFormSubmit(e, formAppointment));
 }
+
+// --- VALIDACIÓN DE TELÉFONO (SOLO NÚMEROS) ---
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInputs = document.querySelectorAll('input[name="telefono"]');
+    
+    phoneInputs.forEach(input => {
+        input.addEventListener('input', function(e) {
+            // Reemplaza cualquier cosa que NO sea un número (0-9) por nada
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    });
+});
+
