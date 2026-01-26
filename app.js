@@ -13,14 +13,13 @@ function switchScreen(screenId) {
 }
 
 function goHome() { 
-    // 1. Cambiar pantalla
     switchScreen('screen-home');
     
-    // 2. FORZAR CIERRE DE OVERLAYS
+    // Forzar cierre de overlays
     if(successOverlay) successOverlay.classList.add('hidden');
     if(loadingOverlay) loadingOverlay.classList.add('hidden');
     
-    // 3. Limpiar formularios
+    // Limpiar formularios
     if(formAssistance) formAssistance.reset();
     if(formAppointment) formAppointment.reset();
 }
@@ -100,7 +99,7 @@ function locateMe(silentMode = false) {
     );
 }
 
-// --- BUSCADOR CALIBRADO PARA ESPAÑA ---
+// --- BUSCADOR CALIBRADO Y PRIORIZADO (GEORREFERENCIADO) ---
 const searchInput = document.getElementById('addressSearch');
 const suggestionsList = document.getElementById('suggestions-list');
 
@@ -121,8 +120,18 @@ if (searchInput) {
 }
 
 function fetchSuggestions(query) {
-    // AQUÍ ESTÁ EL CAMBIO: &countrycodes=es y &dedupe=1
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&countrycodes=es&dedupe=1`)
+    // CAMBIO CLAVE: Añadimos 'viewbox' para priorizar resultados cerca de donde mira el mapa
+    let url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&countrycodes=es&dedupe=1`;
+    
+    // Si el mapa existe, usamos sus bordes para priorizar la búsqueda local
+    if (map) {
+        const bounds = map.getBounds();
+        // Formato Nominatim: left,top,right,bottom
+        const viewbox = `${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()},${bounds.getSouth()}`;
+        url += `&viewbox=${viewbox}`;
+    }
+
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             suggestionsList.innerHTML = '';
@@ -131,13 +140,15 @@ function fetchSuggestions(query) {
                 suggestionsList.classList.remove('hidden');
                 data.forEach(place => {
                     const li = document.createElement('li');
-                    li.innerText = place.display_name;
+                    // Mostramos nombre, y un trozo de la dirección para identificar
+                    li.innerText = place.display_name; 
                     li.onclick = () => {
                         selectSuggestion(place.lat, place.lon, place.display_name);
                     };
                     suggestionsList.appendChild(li);
                 });
             } else {
+                // Si no hay resultados, ocultamos
                 suggestionsList.classList.add('hidden');
             }
         });
@@ -168,7 +179,6 @@ window.onload = function() {
         }, 1000);
     }
     
-    // Fecha mínima hoy
     const dateInput = document.getElementById('dateInput');
     if (dateInput) {
         dateInput.min = new Date().toISOString().split("T")[0];
@@ -180,7 +190,7 @@ function acceptCookies() {
     document.getElementById('cookie-banner').classList.add('hidden-cookie');
 }
 
-// --- ENVÍO FORMULARIO (Web3Forms JSON) ---
+// --- ENVÍO FORMULARIO ---
 function handleFormSubmit(event, form) {
     event.preventDefault();
     loadingOverlay.classList.remove('hidden');
