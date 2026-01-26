@@ -1,0 +1,298 @@
+/* --- BASE --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #000;
+    color: #fff;
+    overflow: hidden; 
+    height: 100vh;
+}
+
+/* --- FONDO --- */
+.background-wrapper {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+}
+.bg-image { width: 100%; height: 100%; object-fit: cover; }
+.bg-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.9) 100%);
+}
+
+/* --- LOGO ENMARCADO --- */
+.brand-container {
+    margin-bottom: 30px;
+    display: flex; flex-direction: column; align-items: center;
+}
+.logo-frame {
+    width: 200px; 
+    height: auto;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex; justify-content: center; align-items: center;
+}
+.brand-logo {
+    width: 100%; height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+}
+h1 { font-size: 2rem; line-height: 1.1; margin-bottom: 10px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+.highlight { color: #aaa; font-weight: 400; }
+
+/* --- PANTALLAS --- */
+.screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.4s ease;
+    opacity: 0; pointer-events: none; transform: scale(0.95);
+    background: transparent;
+}
+.screen.active { opacity: 1; pointer-events: all; transform: scale(1); z-index: 10; }
+
+#screen-assistance, #screen-appointment {
+    background: #000;
+    overflow: hidden;
+}
+
+.content-center {
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    height: 100%; padding: 20px; text-align: center;
+}
+
+/* --- BOTONES --- */
+.cta-container { width: 100%; max-width: 400px; margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
+
+.btn {
+    border: none; border-radius: 20px; padding: 22px;
+    display: flex; align-items: center; text-align: left;
+    cursor: pointer; width: 100%;
+    backdrop-filter: blur(10px);
+    text-decoration: none; color: white;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform-origin: center;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    z-index: 5;
+    filter: brightness(1.1);
+}
+.btn:active { transform: scale(0.98); transition: 0.1s; }
+
+.btn-emergency { background: rgba(220, 38, 38, 0.95); box-shadow: 0 10px 30px rgba(220,38,38,0.25); }
+.btn-book { background: rgba(28, 28, 30, 0.85); border: 1px solid rgba(255,255,255,0.1); }
+
+.icon-box { font-size: 1.8rem; margin-right: 15px; width: 35px; text-align: center; }
+.text-box { display: flex; flex-direction: column; }
+.title { font-size: 1.15rem; font-weight: 700; }
+.subtitle { font-size: 0.85rem; opacity: 0.7; }
+
+/* --- ASISTENCIA LAYOUT --- */
+.header-nav { 
+    padding: 15px 20px; background: #1c1c1e; 
+    display: flex; justify-content: space-between; align-items: center; 
+    flex-shrink: 0;
+}
+.btn-back { 
+    background: none; border: none; color: #0071e3; font-size: 1rem; cursor: pointer; 
+    transition: transform 0.2s;
+}
+.btn-back:hover { transform: translateX(-5px); }
+
+/* Buscador */
+.search-bar-container { padding: 10px; background: #000; flex-shrink: 0; position: relative; z-index: 500;}
+.search-input-wrapper {
+    display: flex; align-items: center;
+    background: #1c1c1e; border-radius: 12px; padding: 5px 10px;
+    border: 1px solid #333;
+}
+.search-input {
+    flex-grow: 1; background: transparent; border: none;
+    color: white; padding: 12px; font-size: 1rem; outline: none;
+}
+.btn-search {
+    background: #0071e3; color: white; border: none;
+    padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;
+}
+
+/* El Mapa */
+.map-wrapper { position: relative; width: 100%; flex-shrink: 0; }
+#map { width: 100%; height: 35vh; min-height: 250px; z-index: 1; }
+.map-hint { 
+    background: #1c1c1e; color: #888; font-size: 0.75rem; 
+    text-align: center; padding: 8px; flex-shrink: 0; 
+}
+
+/* El Formulario */
+.form-container { 
+    flex-grow: 1; 
+    background: #000; 
+    padding: 25px 20px;
+    border-top-left-radius: 25px; 
+    border-top-right-radius: 25px; 
+    margin-top: -20px;
+    position: relative; 
+    z-index: 10; 
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+    overflow-y: auto; 
+}
+
+.form-container.full-height {
+    margin-top: 0;
+    border-radius: 0;
+    height: 100%;
+}
+
+.apple-input { 
+    width: 100%; padding: 16px; border-radius: 12px; 
+    border: 1px solid #333; background: #1c1c1e; 
+    color: white; font-size: 1.1rem; margin-bottom: 20px; margin-top: 5px;
+    outline: none;
+}
+input[type="date"], input[type="time"] { color-scheme: dark; }
+.apple-input:focus { border-color: #0071e3; }
+
+.input-row { display: flex; gap: 15px; }
+.input-group.half { width: 50%; }
+.input-group label { font-size: 0.9rem; color: #aaa; margin-left: 5px;}
+
+.btn-full-red { 
+    width: 100%; background: #ff3b30; color: white; 
+    padding: 18px; border: none; border-radius: 14px; 
+    font-size: 1.1rem; font-weight: 600; cursor: pointer;
+    transition: transform 0.3s;
+}
+.btn-full-red:hover { transform: scale(1.02); background: #ff4f44; }
+
+.btn-full-blue { 
+    width: 100%; background: #0071e3; color: white; 
+    padding: 18px; border: none; border-radius: 14px; 
+    font-size: 1.1rem; font-weight: 600; cursor: pointer;
+    transition: transform 0.3s;
+}
+.btn-full-blue:hover { transform: scale(1.02); background: #0077ed; }
+
+.whatsapp-btn-alt {
+    display: block; text-align: center; margin-top: 20px;
+    color: #30d158; text-decoration: none; font-size: 0.9rem;
+}
+
+/* --- ESTILOS LEGALES (NUEVO) --- */
+.legal-check {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px; font-size: 0.9rem; color: #ccc;
+    justify-content: center;
+}
+.legal-check a { color: #0071e3; text-decoration: none; }
+.legal-footer {
+    position: absolute; bottom: 20px; width: 100%; text-align: center;
+    font-size: 0.8rem; color: #666;
+}
+.legal-footer a { color: #888; text-decoration: none; margin: 0 10px; }
+.legal-footer a:hover { color: #fff; }
+
+/* --- OVERLAYS --- */
+.overlay { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 2000; 
+    display: flex; flex-direction: column; 
+    justify-content: center; align-items: center; text-align: center; padding: 20px;
+    transition: opacity 0.3s ease, visibility 0.3s;
+    opacity: 1; visibility: visible;
+}
+
+.hidden { 
+    display: none !important; 
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.spinner { 
+    width: 50px; height: 50px; 
+    border: 4px solid rgba(255,255,255,0.1); border-left-color: #fff; 
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; 
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* --- ÉXITO --- */
+.success-icon {
+    font-size: 6rem;
+    color: #30d158;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(48, 209, 88, 0.4));
+}
+
+.btn-outline {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 40px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    min-width: 200px;
+}
+.btn-outline:hover { transform: scale(1.05); background: #e0e0e0; }
+
+/* Cookies */
+.cookie-banner {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    width: 90%; max-width: 380px;
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-radius: 18px; padding: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    z-index: 9999; border: 1px solid rgba(255,255,255,0.15);
+    transition: opacity 0.5s ease;
+}
+.cookie-banner.hidden-cookie { display: none !important; }
+.cookie-content p { font-size: 0.9rem; margin-bottom: 15px; color: #ddd; text-align: center; }
+.btn-accept { 
+    background: #fff; color: #000; border: none; 
+    padding: 12px; border-radius: 12px; font-weight: 600; 
+    width: 100%; cursor: pointer; 
+}
+
+/* Animaciones */
+.animate-up { opacity: 0; animation: fadeUp 0.8s forwards; }
+.delay-1 { animation-delay: 0.2s; } .delay-2 { animation-delay: 0.4s; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- AUTOCOMPLETADO Y GPS --- */
+.btn-gps {
+    position: absolute; bottom: 20px; right: 20px;
+    background: #fff; color: #0071e3; border: none;
+    width: 45px; height: 45px; border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    font-size: 1.2rem; cursor: pointer;
+    z-index: 400; /* Encima del mapa */
+    display: flex; justify-content: center; align-items: center;
+    transition: transform 0.2s;
+}
+.btn-gps:active { transform: scale(0.9); }
+
+.suggestions-list {
+    list-style: none; background: #1c1c1e;
+    border: 1px solid #333; border-radius: 12px;
+    margin-top: 5px; max-height: 200px; overflow-y: auto;
+    position: absolute; width: calc(100% - 20px);
+    left: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+}
+.suggestions-list li {
+    padding: 12px 15px; border-bottom: 1px solid #2c2c2e;
+    font-size: 0.9rem; color: #eee; cursor: pointer; text-align: left;
+}
+.suggestions-list li:last-child { border-bottom: none; }
+.suggestions-list li:hover { background: #0071e3; color: white; }
+.suggestions-list.hidden { display: none !important; }

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sorabella Motors Service</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="background-wrapper">
+        <img src="fondo-taller.png" alt="Fondo Taller" class="bg-image">
+        <div class="bg-overlay"></div>
+    </div>
+
+    <section id="screen-home" class="screen active">
+        <div class="content-center">
+            <div class="brand-container animate-up">
+                <div class="logo-frame">
+                    <img src="logo.png" alt="Sorabella Motors Logo" class="brand-logo">
+                </div>
+                <h1>Sorabella Motors <br><span class="highlight">Service</span></h1>
+            </div>
+            
+            <p class="animate-up delay-1">Diagnóstico de precisión. Asistencia inmediata.</p>
+            
+            <div class="cta-container animate-up delay-2">
+                <button onclick="goToAssistance()" class="btn btn-emergency">
+                    <div class="icon-box"><i class="fa-solid fa-truck-medical"></i></div>
+                    <div class="text-box">
+                        <span class="title">Asistencia 24h</span>
+                        <span class="subtitle">Urgencia en carretera</span>
+                    </div>
+                </button>
+                
+                <button onclick="goToAppointment()" class="btn btn-book">
+                    <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div class="text-box">
+                        <span class="title">Cita Previa</span>
+                        <span class="subtitle">Mantenimiento y taller</span>
+                    </div>
+                </button>
+            </div>
+            
+            <footer class="legal-footer animate-up delay-2">
+                <a href="legales.html">Aviso Legal</a> | <a href="legales.html#privacidad">Privacidad</a>
+            </footer>
+        </div>
+    </section>
+
+    <section id="screen-assistance" class="screen">
+        <div class="header-nav">
+            <button onclick="goHome()" class="btn-back"><i class="fa-solid fa-chevron-left"></i> Volver</button>
+            <h3>Ubicación Avería</h3>
+        </div>
+
+        <div class="search-bar-container">
+            <div class="search-input-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="addressSearch" placeholder="Escribe tu calle..." class="search-input" autocomplete="off">
+                <button onclick="searchLocation()" class="btn-search">Ir</button>
+            </div>
+            <ul id="suggestions-list" class="suggestions-list hidden"></ul>
+        </div>
+        
+        <div class="map-wrapper">
+            <div id="map"></div>
+            <button type="button" onclick="locateMe()" class="btn-gps" title="Usar mi ubicación">
+                <i class="fa-solid fa-crosshairs"></i>
+            </button>
+        </div>
+        
+        <p class="map-hint">Mueve el marcador rojo a tu posición exacta.</p>
+
+        <div class="form-container">
+            <form id="assistanceForm" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="725d8103-bd16-4ab9-b2ad-c0607fbdcbd8">
+                <input type="hidden" name="subject" value="URGENTE: Nueva Asistencia en Carretera">
+                <input type="hidden" name="latitud" id="lat">
+                <input type="hidden" name="longitud" id="lng">
+                <input type="hidden" name="google_maps_link" id="gmaps_link">
+                
+                <div class="input-group">
+                    <label>Tu Teléfono de contacto</label>
+                    <input type="tel" name="telefono" placeholder="Ej: 600 123 456" required class="apple-input">
+                </div>
+                
+                <div class="legal-check">
+                    <input type="checkbox" id="legalAssist" required>
+                    <label for="legalAssist">Acepto la <a href="legales.html" target="_blank">política de privacidad</a></label>
+                </div>
+
+                <button type="submit" class="btn btn-full-red">Solicitar Asistencia Ahora</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="screen-appointment" class="screen">
+        <div class="header-nav">
+            <button onclick="goHome()" class="btn-back"><i class="fa-solid fa-chevron-left"></i> Volver</button>
+            <h3>Agendar Cita</h3>
+        </div>
+        
+        <div class="form-container full-height">
+            <div class="appointment-header">
+                <h2>Reserva tu hueco</h2>
+                <p>Confirmaremos tu cita por teléfono.</p>
+            </div>
+
+            <form id="appointmentForm" action="https://api.web3forms.com/submit" method="POST">
+                <input type="hidden" name="access_key" value="TU_CLAVE_DE_ACCESO_AQUI">
+                <input type="hidden" name="subject" value="NUEVA CITA: Taller Sorabella">
+
+                <div class="input-group">
+                    <label>Tu Nombre</label>
+                    <input type="text" name="nombre" placeholder="Tu nombre completo" required class="apple-input">
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group half">
+                        <label>Fecha</label>
+                        <input type="date" name="fecha" required class="apple-input" id="dateInput">
+                    </div>
+                    <div class="input-group half">
+                        <label>Hora aprox.</label>
+                        <input type="time" name="hora" required class="apple-input">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Tipo de Servicio</label>
+                    <select name="servicio" class="apple-input" required>
+                        <option value="" disabled selected>Selecciona una opción</option>
+                        <option value="Mantenimiento">Mantenimiento / Revisión</option>
+                        <option value="Avería Mecánica">Avería Mecánica</option>
+                        <option value="Neumáticos">Neumáticos</option>
+                        <option value="ITV">Pre-ITV</option>
+                        <option value="Otro">Otro / Consulta</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>Tu Teléfono</label>
+                    <input type="tel" name="telefono" placeholder="Ej: 600 123 456" required class="apple-input">
+                </div>
+                
+                <div class="legal-check">
+                    <input type="checkbox" id="legalAppoint" required>
+                    <label for="legalAppoint">Acepto la <a href="legales.html" target="_blank">política de privacidad</a></label>
+                </div>
+
+                <button type="submit" class="btn btn-full-blue">Confirmar Solicitud</button>
+                
+                <a href="https://wa.me/34600000000" class="whatsapp-btn-alt">
+                    <i class="fa-brands fa-whatsapp"></i> ¿Prefieres escribir por WhatsApp?
+                </a>
+            </form>
+        </div>
+    </section>
+
+    <div id="loading-overlay" class="overlay hidden">
+        <div class="spinner"></div>
+        <p>Enviando solicitud...</p>
+    </div>
+
+    <div id="success-overlay" class="overlay hidden">
+        <i class="fa-solid fa-circle-check success-icon"></i>
+        <h2>Solicitud Enviada</h2>
+        <p>Hemos recibido tus datos correctamente.<br>Nos pondremos en contacto contigo.</p>
+        <button onclick="goHome()" class="btn-outline">Volver al inicio</button>
+    </div>
+
+    <div id="cookie-banner" class="cookie-banner hidden-cookie">
+        <div class="cookie-content">
+            <p>Usamos cookies. Al seguir, aceptas nuestra <a href="legales.html#cookies" style="color: #0071e3;">política de cookies</a>.</p>
+            <button onclick="acceptCookies()" class="btn-accept">Aceptar</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
