@@ -100,7 +100,7 @@ function locateMe(silentMode = false) {
     );
 }
 
-// --- BUSCADOR ---
+// --- BUSCADOR CALIBRADO PARA ESPAÑA ---
 const searchInput = document.getElementById('addressSearch');
 const suggestionsList = document.getElementById('suggestions-list');
 
@@ -121,7 +121,8 @@ if (searchInput) {
 }
 
 function fetchSuggestions(query) {
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5`)
+    // AQUÍ ESTÁ EL CAMBIO: &countrycodes=es y &dedupe=1
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&countrycodes=es&dedupe=1`)
         .then(response => response.json())
         .then(data => {
             suggestionsList.innerHTML = '';
