@@ -1,4 +1,4 @@
-// Variables globales
+// --- VARIABLES GLOBALES ---
 let map, marker;
 const formAssistance = document.getElementById('assistanceForm');
 const formAppointment = document.getElementById('appointmentForm');
@@ -19,9 +19,20 @@ function goHome() {
     if(successOverlay) successOverlay.classList.add('hidden');
     if(loadingOverlay) loadingOverlay.classList.add('hidden');
     
-    // Limpiar formularios
-    if(formAssistance) formAssistance.reset();
-    if(formAppointment) formAppointment.reset();
+    // Limpiar formularios y bordes rojos
+    if(formAssistance) {
+        formAssistance.reset();
+        clearErrors(formAssistance);
+    }
+    if(formAppointment) {
+        formAppointment.reset();
+        clearErrors(formAppointment);
+    }
+}
+
+function clearErrors(form) {
+    const inputs = form.querySelectorAll('input');
+    inputs.forEach(i => i.style.border = "");
 }
 
 function goToAppointment() { switchScreen('screen-appointment'); }
@@ -31,15 +42,16 @@ function goToAssistance() {
     setTimeout(initMap, 300); 
 }
 
-// --- MAPA ---
+// --- MAPA (Leaflet) ---
 function initMap() {
     if (map) {
         map.invalidateSize();
         return;
     }
     
-    let lat = 40.416;
-    let lng = -3.703;
+    // Coordenadas iniciales (Centro España o Tarragona por defecto)
+    let lat = 41.118; 
+    let lng = 1.245;
 
     map = L.map('map').setView([lat, lng], 13);
 
@@ -49,7 +61,7 @@ function initMap() {
 
     marker = L.marker([lat, lng], {draggable: true}).addTo(map);
 
-    locateMe(true);
+    locateMe(true); // Intenta localizar al iniciar
 
     marker.on('dragend', function(e) {
         let pos = marker.getLatLng();
@@ -68,12 +80,16 @@ function updatePosition(lat, lng) {
 }
 
 function updateFormCoords(lat, lng) {
-    document.getElementById('lat').value = lat;
-    document.getElementById('lng').value = lng;
-    document.getElementById('gmaps_link').value = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`;
+    const latInput = document.getElementById('lat');
+    const lngInput = document.getElementById('lng');
+    const linkInput = document.getElementById('gmaps_link');
+
+    if(latInput) latInput.value = lat;
+    if(lngInput) lngInput.value = lng;
+    if(linkInput) linkInput.value = `http://googleusercontent.com/maps.google.com/maps?q=${lat},${lng}`;
 }
 
-// --- FUNCIÓN BOTÓN GPS ---
+// --- GPS BOTÓN ---
 function locateMe(silentMode = false) {
     if (!navigator.geolocation) {
         if (!silentMode) alert("Tu navegador no soporta GPS.");
@@ -92,14 +108,14 @@ function locateMe(silentMode = false) {
             console.warn("Error GPS:", err);
             if (!silentMode && btn) {
                 btn.innerHTML = '<i class="fa-solid fa-crosshairs"></i>';
-                alert("No pudimos localizarte.");
+                if(!silentMode) alert("No pudimos localizarte. Mueve el mapa manualmente.");
             }
         },
         { enableHighAccuracy: true, timeout: 5000 }
     );
 }
 
-// --- BUSCADOR CALIBRADO Y PRIORIZADO (GEORREFERENCIADO) ---
+// --- BUSCADOR ---
 const searchInput = document.getElementById('addressSearch');
 const suggestionsList = document.getElementById('suggestions-list');
 
@@ -120,13 +136,10 @@ if (searchInput) {
 }
 
 function fetchSuggestions(query) {
-    // CAMBIO CLAVE: Añadimos 'viewbox' para priorizar resultados cerca de donde mira el mapa
     let url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&addressdetails=1&limit=5&countrycodes=es&dedupe=1`;
     
-    // Si el mapa existe, usamos sus bordes para priorizar la búsqueda local
     if (map) {
         const bounds = map.getBounds();
-        // Formato Nominatim: left,top,right,bottom
         const viewbox = `${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()},${bounds.getSouth()}`;
         url += `&viewbox=${viewbox}`;
     }
@@ -134,40 +147,41 @@ function fetchSuggestions(query) {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            suggestionsList.innerHTML = '';
-            
-            if (data.length > 0) {
-                suggestionsList.classList.remove('hidden');
-                data.forEach(place => {
-                    const li = document.createElement('li');
-                    // Mostramos nombre, y un trozo de la dirección para identificar
-                    li.innerText = place.display_name; 
-                    li.onclick = () => {
-                        selectSuggestion(place.lat, place.lon, place.display_name);
-                    };
-                    suggestionsList.appendChild(li);
-                });
-            } else {
-                // Si no hay resultados, ocultamos
-                suggestionsList.classList.add('hidden');
+            if(suggestionsList) {
+                suggestionsList.innerHTML = '';
+                if (data.length > 0) {
+                    suggestionsList.classList.remove('hidden');
+                    data.forEach(place => {
+                        const li = document.createElement('li');
+                        li.innerText = place.display_name; 
+                        li.onclick = () => {
+                            selectSuggestion(place.lat, place.lon, place.display_name);
+                        };
+                        suggestionsList.appendChild(li);
+                    });
+                } else {
+                    suggestionsList.classList.add('hidden');
+                }
             }
         });
 }
 
 function selectSuggestion(lat, lon, name) {
-    searchInput.value = name;
-    suggestionsList.classList.add('hidden');
+    if(searchInput) searchInput.value = name;
+    if(suggestionsList) suggestionsList.classList.add('hidden');
     updatePosition(lat, lon);
 }
 
 function searchLocation() {
-    const query = searchInput.value;
-    if (query) fetchSuggestions(query);
+    if(searchInput) {
+        const query = searchInput.value;
+        if (query) fetchSuggestions(query);
+    }
 }
 
 document.addEventListener('click', function(e) {
-    if (e.target !== searchInput && e.target !== suggestionsList) {
-        if(suggestionsList) suggestionsList.classList.add('hidden');
+    if (searchInput && suggestionsList && e.target !== searchInput && e.target !== suggestionsList) {
+        suggestionsList.classList.add('hidden');
     }
 });
 
@@ -175,7 +189,8 @@ document.addEventListener('click', function(e) {
 window.onload = function() {
     if (!localStorage.getItem('cookiesAccepted')) {
         setTimeout(() => {
-            document.getElementById('cookie-banner').classList.remove('hidden-cookie');
+            const banner = document.getElementById('cookie-banner');
+            if(banner) banner.classList.remove('hidden-cookie');
         }, 1000);
     }
     
@@ -187,29 +202,35 @@ window.onload = function() {
 
 function acceptCookies() {
     localStorage.setItem('cookiesAccepted', 'true');
-    document.getElementById('cookie-banner').classList.add('hidden-cookie');
+    const banner = document.getElementById('cookie-banner');
+    if(banner) banner.classList.add('hidden-cookie');
 }
 
-// --- ENVÍO FORMULARIO (CORREGIDO Y BLINDADO) ---
-function handleFormSubmit(event, form) {
-    event.preventDefault(); // 1. Frenamos el envío estándar
+// --- LÓGICA DE ENVÍO Y VALIDACIÓN (AQUÍ ESTÁ LA CLAVE) ---
 
-    // 2. VALIDACIÓN DE SEGURIDAD: Teléfono
-    // Buscamos el campo de teléfono de este formulario
+function handleFormSubmit(event, form) {
+    event.preventDefault(); // 1. DETENEMOS EL ENVÍO INMEDIATAMENTE
+
+    // 2. BUSCAMOS EL CAMPO DE TELÉFONO
     const phoneInput = form.querySelector('input[name="telefono"]');
     
-    // Si existe y tiene menos de 9 caracteres... ¡ALTO!
-    if (phoneInput && phoneInput.value.length < 9) {
-        alert("⚠️ Por favor, introduce un número de teléfono válido (mínimo 9 dígitos).");
-        phoneInput.focus(); // Llevamos al usuario al error
-        phoneInput.style.borderColor = "red"; // Lo marcamos en rojo
-        return; // IMPORTANTE: Esto mata la función aquí. No se conecta con Web3Forms.
-    } else {
-        if(phoneInput) phoneInput.style.borderColor = ""; // Quitamos el rojo si ya está bien
+    // 3. VALIDACIÓN ESTRICTA
+    if (phoneInput) {
+        // Limpiamos espacios para contar solo números reales
+        const cleanNumber = phoneInput.value.replace(/\D/g, ''); 
+        
+        if (cleanNumber.length < 9) {
+            alert("⚠️ El teléfono debe tener al menos 9 números.");
+            phoneInput.style.border = "2px solid red"; // Borde rojo
+            phoneInput.focus();
+            return; // ¡ALTO! AQUÍ SE DETIENE LA FUNCIÓN. NO SIGUE.
+        } else {
+            phoneInput.style.border = ""; // Quitamos borde rojo si está bien
+        }
     }
 
-    // 3. SI PASA LA VALIDACIÓN, ENVIAMOS DE VERDAD
-    loadingOverlay.classList.remove('hidden');
+    // 4. SI PASA LA VALIDACIÓN, ENVIAMOS
+    if(loadingOverlay) loadingOverlay.classList.remove('hidden');
     
     const formData = new FormData(form);
     const object = Object.fromEntries(formData);
@@ -226,32 +247,45 @@ function handleFormSubmit(event, form) {
     .then(async (response) => {
         let json = await response.json();
         if (response.status == 200) {
-            loadingOverlay.classList.add('hidden');
-            successOverlay.classList.remove('hidden');
+            if(loadingOverlay) loadingOverlay.classList.add('hidden');
+            if(successOverlay) successOverlay.classList.remove('hidden');
             form.reset();
         } else {
             console.log(response);
-            loadingOverlay.classList.add('hidden');
+            if(loadingOverlay) loadingOverlay.classList.add('hidden');
             alert("Error al enviar: " + json.message);
         }
     })
     .catch(error => {
         console.log(error);
-        loadingOverlay.classList.add('hidden');
+        if(loadingOverlay) loadingOverlay.classList.add('hidden');
         alert("Algo salió mal. Inténtalo de nuevo.");
     });
 }
 
-// --- VALIDACIÓN DE TELÉFONO (SOLO NÚMEROS) ---
+// Asignamos los eventos de envío
+if (formAssistance) {
+    formAssistance.addEventListener('submit', (e) => handleFormSubmit(e, formAssistance));
+}
+
+if (formAppointment) {
+    formAppointment.addEventListener('submit', (e) => handleFormSubmit(e, formAppointment));
+}
+
+// --- LIMPIEZA AUTOMÁTICA DE LETRAS ---
+// Esto impide escribir letras mientras tecleas
 document.addEventListener('DOMContentLoaded', function() {
     const phoneInputs = document.querySelectorAll('input[name="telefono"]');
     
     phoneInputs.forEach(input => {
         input.addEventListener('input', function(e) {
-            // Reemplaza cualquier cosa que NO sea un número (0-9) por nada
+            // Si el usuario escribe algo que no sea número, se borra al instante
             this.value = this.value.replace(/[^0-9]/g, '');
+            
+            // Si ya tiene 9 o más, quitamos el borde rojo si lo tenía
+            if(this.value.length >= 9) {
+                this.style.border = "";
+            }
         });
     });
 });
-
-
