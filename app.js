@@ -190,9 +190,25 @@ function acceptCookies() {
     document.getElementById('cookie-banner').classList.add('hidden-cookie');
 }
 
-// --- ENVÍO FORMULARIO ---
+// --- ENVÍO FORMULARIO (CORREGIDO Y BLINDADO) ---
 function handleFormSubmit(event, form) {
-    event.preventDefault();
+    event.preventDefault(); // 1. Frenamos el envío estándar
+
+    // 2. VALIDACIÓN DE SEGURIDAD: Teléfono
+    // Buscamos el campo de teléfono de este formulario
+    const phoneInput = form.querySelector('input[name="telefono"]');
+    
+    // Si existe y tiene menos de 9 caracteres... ¡ALTO!
+    if (phoneInput && phoneInput.value.length < 9) {
+        alert("⚠️ Por favor, introduce un número de teléfono válido (mínimo 9 dígitos).");
+        phoneInput.focus(); // Llevamos al usuario al error
+        phoneInput.style.borderColor = "red"; // Lo marcamos en rojo
+        return; // IMPORTANTE: Esto mata la función aquí. No se conecta con Web3Forms.
+    } else {
+        if(phoneInput) phoneInput.style.borderColor = ""; // Quitamos el rojo si ya está bien
+    }
+
+    // 3. SI PASA LA VALIDACIÓN, ENVIAMOS DE VERDAD
     loadingOverlay.classList.remove('hidden');
     
     const formData = new FormData(form);
@@ -226,14 +242,6 @@ function handleFormSubmit(event, form) {
     });
 }
 
-if (formAssistance) {
-    formAssistance.addEventListener('submit', (e) => handleFormSubmit(e, formAssistance));
-}
-
-if (formAppointment) {
-    formAppointment.addEventListener('submit', (e) => handleFormSubmit(e, formAppointment));
-}
-
 // --- VALIDACIÓN DE TELÉFONO (SOLO NÚMEROS) ---
 document.addEventListener('DOMContentLoaded', function() {
     const phoneInputs = document.querySelectorAll('input[name="telefono"]');
@@ -245,4 +253,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
 
