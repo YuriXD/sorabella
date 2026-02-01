@@ -198,6 +198,9 @@ window.onload = function() {
     if (dateInput) {
         dateInput.min = new Date().toISOString().split("T")[0];
     }
+    
+    // Iniciar el slider cuando carga la página
+    startSlider();
 }
 
 function acceptCookies() {
@@ -206,7 +209,7 @@ function acceptCookies() {
     if(banner) banner.classList.add('hidden-cookie');
 }
 
-// --- LÓGICA DE ENVÍO Y VALIDACIÓN (AQUÍ ESTÁ LA CLAVE) ---
+// --- LÓGICA DE ENVÍO Y VALIDACIÓN ---
 
 function handleFormSubmit(event, form) {
     event.preventDefault(); // 1. DETENEMOS EL ENVÍO INMEDIATAMENTE
@@ -273,19 +276,62 @@ if (formAppointment) {
 }
 
 // --- LIMPIEZA AUTOMÁTICA DE LETRAS ---
-// Esto impide escribir letras mientras tecleas
 document.addEventListener('DOMContentLoaded', function() {
     const phoneInputs = document.querySelectorAll('input[name="telefono"]');
     
     phoneInputs.forEach(input => {
         input.addEventListener('input', function(e) {
-            // Si el usuario escribe algo que no sea número, se borra al instante
             this.value = this.value.replace(/[^0-9]/g, '');
-            
-            // Si ya tiene 9 o más, quitamos el borde rojo si lo tenía
             if(this.value.length >= 9) {
                 this.style.border = "";
             }
         });
     });
 });
+
+// --- CAROUSEL / SLIDER (Lógica Nueva) ---
+let slideIndex = 0;
+let slideInterval;
+const slideDelay = 4000; // 4 segundos por imagen
+
+function startSlider() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    if (slides.length === 0) return;
+    
+    showSlide(slideIndex);
+    resetTimer();
+}
+
+function moveSlide(n) {
+    const slides = document.querySelectorAll('.carousel-slide');
+    slideIndex += n;
+    
+    if (slideIndex >= slides.length) slideIndex = 0;
+    if (slideIndex < 0) slideIndex = slides.length - 1;
+    
+    showSlide(slideIndex);
+    resetTimer(); // Reinicia el contador si el usuario toca las flechas
+}
+
+function showSlide(index) {
+    const track = document.getElementById('carouselTrack');
+    if(track) {
+        track.style.transform = `translateX(-${index * 100}%)`;
+    }
+}
+
+function resetTimer() {
+    clearInterval(slideInterval);
+    
+    // Reiniciar la animación de la barra
+    const bar = document.getElementById('progressBar');
+    if (bar) {
+        bar.classList.remove('animating');
+        void bar.offsetWidth; // Forzar reflow para reiniciar CSS animation
+        bar.classList.add('animating');
+    }
+
+    slideInterval = setInterval(() => {
+        moveSlide(1);
+    }, slideDelay);
+}
