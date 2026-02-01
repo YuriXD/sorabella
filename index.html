@@ -25,8 +25,21 @@
     <section id="screen-home" class="screen active">
         <div class="content-center">
             <div class="brand-container animate-up">
-                <div class="logo-frame">
-                    <img src="logo.png" alt="Sorabella Motors Logo" class="brand-logo">
+                
+                <div class="carousel-wrapper">
+                    <div class="carousel-track" id="carouselTrack">
+                        <img src="foto1.png" class="carousel-slide" alt="Foto 1">
+                        <img src="foto2.png" class="carousel-slide" alt="Foto 2">
+                        <img src="foto3.png" class="carousel-slide" alt="Foto 3">
+                        <img src="foto4.png" class="carousel-slide" alt="Foto 3">
+                    </div>
+                    
+                    <button class="carousel-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+                    <button class="carousel-btn next" onclick="moveSlide(1)">&#10095;</button>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
                 </div>
                 <h1>Sorabella Motors <br><span class="highlight">Service</span></h1>
             </div>
@@ -188,11 +201,4 @@
 
     <script src="app.js"></script>
 </body>
-
 </html>
-
-
-
-
-
-
